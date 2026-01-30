@@ -23,6 +23,14 @@ os.makedirs(OUTPUT_DIR, exist_ok=True)
 # In-memory status tracking (could be replaced with Redis/DB for production)
 jobs = {}
 
+@app.on_event("startup")
+async def startup_event():
+    cookies_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
+    if os.path.exists(cookies_path):
+        print(f"✅ SUCCESS: cookies.txt found at {cookies_path}")
+    else:
+        print(f"❌ WARNING: cookies.txt NOT found at {cookies_path}")
+
 @app.post("/process")
 async def process_video(youtube_url: str, background_tasks: BackgroundTasks):
     job_id = str(uuid.uuid4())
