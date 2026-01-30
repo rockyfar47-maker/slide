@@ -7,17 +7,32 @@ import numpy as np
 from PIL import Image
 
 def get_stream_url(youtube_url):
+    # Path to optional cookies file for cloud deployment
+    cookies_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
+    
     ydl_opts = {
-        'format': 'best[height<=720]', # 720p is usually enough for slides
+        'format': 'best[height<=720]',
         'quiet': True,
         'no_warnings': True,
-        # Spoofing headers to avoid bot detection
-        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'referer': 'https://www.google.com/',
+        # Aggressive spoofing
+        'user_agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
+        'referer': 'https://www.youtube.com/',
         'nocheckcertificate': True,
-        # Force the Use of the Android client which is often less restricted
-        'extractor_args': {'youtube': {'player_client': ['android', 'web']}},
+        # Multi-client spoofing: iOS and Android are much less likely to trigger bot checks
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['ios', 'android', 'web'],
+                'skip': ['webpage', 'configs']
+            }
+        },
     }
+    
+    # If the user has provided a cookies.txt file, use it. 
+    # This is the "Nuclear Option" that always works.
+    if os.path.exists(cookies_path):
+        ydl_opts['cookiefile'] = cookies_path
+        print("Using cookies.txt for authentication")
+
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(youtube_url, download=False)
         return info['url']
