@@ -8,9 +8,15 @@ from PIL import Image
 
 def get_stream_url(youtube_url):
     ydl_opts = {
-        'format': 'best[height<=720]', # 720p is usually enough for slides and faster to process
+        'format': 'best[height<=720]', # 720p is usually enough for slides
         'quiet': True,
         'no_warnings': True,
+        # Spoofing headers to avoid bot detection
+        'user_agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'referer': 'https://www.google.com/',
+        'nocheckcertificate': True,
+        # Force the Use of the Android client which is often less restricted
+        'extractor_args': {'youtube': {'player_client': ['android', 'web']}},
     }
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(youtube_url, download=False)
