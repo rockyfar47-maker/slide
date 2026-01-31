@@ -25,11 +25,24 @@ jobs = {}
 
 @app.on_event("startup")
 async def startup_event():
+    # Check for cookies in environment variable (Secure method for Render/Railway)
+    env_cookies = os.getenv("YOUTUBE_COOKIES")
     cookies_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
+    
+    if env_cookies:
+        # Write the env var content to the file
+        try:
+            with open(cookies_path, 'w') as f:
+                f.write(env_cookies)
+            print(f"✅ SUCCESS: cookies.txt created from environment variable.")
+        except Exception as e:
+            print(f"❌ ERROR: Failed to write cookies from env var: {e}")
+
+    # Verify file exists
     if os.path.exists(cookies_path):
         print(f"✅ SUCCESS: cookies.txt found at {cookies_path}")
     else:
-        print(f"❌ WARNING: cookies.txt NOT found at {cookies_path}")
+        print(f"❌ WARNING: cookies.txt NOT found. You may encounter 'Sign in' errors.")
 
 @app.post("/process")
 async def process_video(youtube_url: str, background_tasks: BackgroundTasks):
