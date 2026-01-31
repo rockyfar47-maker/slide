@@ -11,7 +11,7 @@ def get_stream_url(youtube_url):
     cookies_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
     
     ydl_opts = {
-        'format': 'bestvideo/best', # Allow any video stream (WebM/MP4) - Broadest compatibility
+        'format': '18/best', # Force 360p (MP4). Most reliable & sufficient for OpenCV.
         'quiet': False,
         'no_warnings': False,
         'referer': 'https://www.google.com/',
@@ -125,5 +125,5 @@ def extract_slides(youtube_url, output_pdf_path, temp_dir='temp_slides', thresho
 
 if __name__ == "__main__":
     # Test path
-    test_url = "https://www.youtube.com/watch?v=dQw4w9WgXcQ" # Demo
+    test_url = "https://www.youtube.com/watch?v=pIZLlyz3wbs" # Specific test case
     # extract_slides(test_url, "test_output.pdf")
