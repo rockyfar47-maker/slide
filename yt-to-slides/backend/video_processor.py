@@ -11,31 +11,32 @@ def get_stream_url(youtube_url):
     cookies_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
     
     ydl_opts = {
-        'format': 'best[height<=720]',
-        'quiet': True,
-        'no_warnings': True,
-        # Aggressive spoofing
-        'user_agent': 'Mozilla/5.0 (iPhone; CPU iPhone OS 16_6 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/16.6 Mobile/15E148 Safari/604.1',
-        'referer': 'https://www.youtube.com/',
+        'format': 'bestvideo[ext=mp4]/best[ext=mp4]/best', # Prioritize video-only MP4 for OpenCV
+        'quiet': False,
+        'no_warnings': False,
+        'referer': 'https://www.google.com/',
         'nocheckcertificate': True,
-        # Multi-client spoofing: iOS and Android are much less likely to trigger bot checks
-        'extractor_args': {
-            'youtube': {
-                'player_client': ['ios', 'android', 'web'],
-                'skip': ['webpage', 'configs']
-            }
-        },
+        'geo_bypass': True,
     }
     
-    # If the user has provided a cookies.txt file, use it. 
-    # This is the "Nuclear Option" that always works.
     if os.path.exists(cookies_path):
         ydl_opts['cookiefile'] = cookies_path
-        print("Using cookies.txt for authentication")
+        print(f"Using cookies.txt from {cookies_path}")
+    else:
+        # If no cookies file, try to use browser cookies (Local dev only)
+        # This will try to pull from Chrome/Edge if installed
+        print("No cookies.txt found. Trying 'cookiesfrombrowser'...")
+        ydl_opts['cookiesfrombrowser'] = ('chrome',) 
+
+        print("Using cookies.txt for extraction...")
 
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(youtube_url, download=False)
-        return info['url']
+        try:
+            info = ydl.extract_info(youtube_url, download=False)
+            return info['url']
+        except Exception as e:
+            print(f"Extraction Error: {str(e)}")
+            raise e
 
 def extract_slides(youtube_url, output_pdf_path, temp_dir='temp_slides', threshold=0.98, skip_seconds=2):
     """
