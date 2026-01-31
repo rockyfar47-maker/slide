@@ -11,7 +11,7 @@ def get_stream_url(youtube_url):
     cookies_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
     
     ydl_opts = {
-        'format': 'bestvideo[ext=mp4]/best[ext=mp4]/best', # Prioritize video-only MP4 for OpenCV
+        'format': 'bestvideo/best', # Allow any video stream (WebM/MP4) - Broadest compatibility
         'quiet': False,
         'no_warnings': False,
         'referer': 'https://www.google.com/',
